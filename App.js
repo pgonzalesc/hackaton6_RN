@@ -1,12 +1,4 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
-import React from 'react';
+import React, {useState} from 'react';
 import {
   StyleSheet,
   ScrollView,
@@ -15,17 +7,82 @@ import {
   Image,
   Dimensions,
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
+  Switch,
+  Alert
 } from 'react-native';
 
 const {width} = Dimensions.get('window');
 
 const App = () => {
+  const [switchMaleValue, setSwitchMaleValue] = useState(false);
+  const [switchFemaleValue, setSwitchFemaleValue] = useState(false);
+  const [editableValue, setEditableValue] = useState(false);
+  const [userProfileValue, setUserProfileValue] = useState('Lacey Fernandez');
+  const [showCard, setShowCard] = useState(true);
+  const [data, setData] = useState('');
+
+  const { username, cell, mail, date, sex } = data;
+
+  let temp = {};
+
+  const handleChangeForm = (e, name) => {
+    //console.log(e);
+    temp[name] = e;
+    //setData(temp);
+    //console.log(temp);
+  }
+
+  const toggleSwitchMale = (value) => {
+    if(value)
+      temp['sex'] = 'Male';
+    console.log(temp);
+    setSwitchMaleValue(value);
+    setSwitchFemaleValue(!value);
+    setData(temp);
+    temp = data;
+  };
+
+  const toggleSwitchFemale = (value) => {
+    if(value)
+      temp['sex'] = 'Female';
+
+    setSwitchFemaleValue(value);
+    setSwitchMaleValue(!value);
+    setData(temp);
+    temp = data;
+  };
+
+  const aviso = () => {
+    Alert.alert(
+      'Aviso',
+      'Esta funcionalidad aún no se encuentra habilitada',
+      [{text: 'OK'}]
+    )
+  }
+  const handleDisabled = () => {
+    setEditableValue(!editableValue);
+  }
+
+  const handleChange = (e) => {
+    setUserProfileValue(e.target.value);
+  }
+
+  const handleShow = () => {
+    setShowCard(!showCard);
+  }
+
+  const handleSubmit = (data) => {
+    setData(data);
+    handleShow();
+  }
+
   return (
     <>
       <View style={styles.container}>
         {/* HEADER */}
         <View style={styles.imageContainer}>
+          <TouchableOpacity onPress={ ()=> aviso() }>
           <Image 
             source={{
               uri: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=80',
@@ -33,12 +90,16 @@ const App = () => {
             style={{width: width/2.5, height: (width * 35) / 100, borderTopLeftRadius: 80,
               borderTopRightRadius: 80, borderBottomLeftRadius: 80, borderBottomRightRadius: 80}}
           />
+          </TouchableOpacity>
           <View style={styles.textProfileContainer}>
             <TextInput
-              value='Lacey Fernandez'
+              value={userProfileValue}
               style={styles.textProfile}
+              editable={editableValue}
+              onChange={handleChange}
+              onBlur={handleDisabled}
             />
-            <TouchableOpacity style={styles.btnEditImageProfile}>
+            <TouchableOpacity style={styles.btnEditImageProfile} onPress={handleDisabled}>
             <Image 
               source={{
                 uri: 'https://webstockreview.net/images/how-to-edit-png-images-14.png',
@@ -48,7 +109,8 @@ const App = () => {
             </TouchableOpacity>
           </View>
         </View>
-        <ScrollView style={styles.cardProfileContainer}>
+        {showCard ? (
+          <ScrollView style={styles.cardProfileContainer}>
             <View>
               <Text style={styles.titleProfile}>USER PROFILE</Text>
             </View>
@@ -64,10 +126,113 @@ const App = () => {
                 <TextInput 
                 placeholder="Enter User Name"
                 style={styles.textCard}
+                onChangeText={(text) => handleChangeForm(text, 'username')}
                 />
               </View>
             </View>
+            <View>
+              <Text style={styles.labelCard}>Email Id</Text>
+              <View style={styles.textContainer}>
+                <Image 
+                  source={{
+                    uri: 'https://toppng.com/uploads/preview/email-icon-vector-circle-11549825158ieiklzfl8g.png',
+                  }}
+                  style={styles.iconCard}
+                />
+                <TextInput 
+                placeholder="Enter Email"
+                style={styles.textCard}
+                keyboardType='email-address'
+                onChangeText={(text) => handleChangeForm(text, 'mail')}
+                />
+              </View>
+            </View>
+            <View>
+              <Text style={styles.labelCard}>Mobile Number</Text>
+              <View style={styles.textContainer}>
+                <Image 
+                  source={{
+                    uri: 'https://listimg.pinclipart.com/picdir/s/129-1294634_mobile-phone-icon-black-and-white-download-mobile.png',
+                  }}
+                  style={styles.iconCard}
+                />
+                <TextInput 
+                placeholder="Enter your 10 digit mobile number"
+                style={styles.textCard}
+                keyboardType='numeric'
+                onChangeText={(text) => handleChangeForm(text, 'cell')}
+                />
+              </View>
+            </View>
+
+            <View>
+              <Text style={styles.labelCard}>Date of Birth</Text>
+              <View style={styles.textContainer}>
+                <Image 
+                  source={{
+                    uri: 'https://cdn.onlinewebfonts.com/svg/img_247795.png',
+                  }}
+                  style={styles.iconCard}
+                />
+                <TextInput 
+                placeholder="DD / MM / YYYY"
+                style={styles.textCard}
+                onChangeText={(text) => handleChangeForm(text, 'date')}
+                />
+              </View>
+            </View>
+
+            <View>
+              <Text style={styles.labelCard}>Sex</Text>
+              <View style={styles.cardSexContainer}>
+                <Switch onValueChange={toggleSwitchMale}
+                value={switchMaleValue}/>
+                <Text style={{marginRight: 40}}>Male</Text>
+                <Switch 
+                onValueChange={toggleSwitchFemale}
+                value={switchFemaleValue}
+                />
+                <Text>Female</Text>
+              </View>
+            </View>
+
+            <View>
+              <TouchableOpacity style={styles.btnSave} onPress={()=>handleSubmit(data)}>
+                <Text style={styles.btnTextSave}>Save</Text>
+              </TouchableOpacity>
+            </View>
         </ScrollView>
+        
+      ) : (
+          <ScrollView style={styles.cardProfileContainer}>
+            <View style={styles.sectionData}>
+              <Text style={styles.labelCard}>User Name</Text>
+              <Text>{username}</Text>
+            </View>
+            <View style={styles.sectionData}>
+              <Text style={styles.labelCard}>Email Id</Text>
+              <Text>{mail}</Text>
+            </View>
+            <View style={styles.sectionData}>
+              <Text style={styles.labelCard}>Mobile Number</Text>
+              <Text>{cell}</Text>
+            </View>
+            <View style={styles.sectionData}>
+              <Text style={styles.labelCard}>Date of Birth</Text>
+              <Text>{date}</Text>
+            </View>
+            <View style={styles.sectionData}>
+              <Text style={styles.labelCard}>Sex</Text>
+              <Text>{sex}</Text>
+            </View>
+            <View>
+              <TouchableOpacity style={styles.btnSave} onPress={handleShow}>
+                <Text style={styles.btnTextSave}>Regresar</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+      )}
+        
       </View>
     </>
   );
@@ -81,7 +246,8 @@ const styles = StyleSheet.create({
   imageContainer: {
     alignItems: 'center',
     justifyContent: 'flex-start',
-    backgroundColor: '#A141A9'
+    backgroundColor: '#A141A9',
+    paddingTop: 20
   },
   textProfile: {
     color: '#FFF'
@@ -105,10 +271,7 @@ const styles = StyleSheet.create({
     height:40,
     paddingHorizontal: 10,
     paddingVertical: 10,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20, 
-    borderBottomLeftRadius: 20, 
-    borderBottomRightRadius: 20,
+    borderRadius: 20,
     marginLeft:10
   },
   titleProfile: {
@@ -122,6 +285,7 @@ const styles = StyleSheet.create({
     borderColor:"#e1e1e1",
     borderRadius: 25,
     paddingLeft: 5,
+    marginBottom: 15
     //paddingVertical: 5
   },
   textCard: {
@@ -137,6 +301,22 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 14,
     marginBottom: 5
+  },
+  cardSexContainer: {
+    flexDirection: 'row',
+  },
+  btnTextSave: {
+    textAlign: 'center',
+    color: '#FFF'
+  },
+  btnSave: {
+    backgroundColor: 'purple',
+    padding: 10,
+    borderRadius: 25,
+    marginTop: 10
+  },
+  sectionData: {
+    marginVertical: 20
   }
 });
 
